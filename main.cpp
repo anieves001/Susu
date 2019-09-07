@@ -11,67 +11,89 @@ using namespace nieves_hands;
 void clear_screen();
 void display_greeting();
 void printParticipants(participant* i_ptr,int n);
-void add_participant(participant* i_ptr,int& n);
-void delete_participant(participant* i_ptr,int n);
+participant* add_participant(participant* i_ptr,int& n);
+participant* delete_participant(participant* i_ptr,int& n);
 void hands_Order(participant* i_ptr,int n);
+
 int main(){
+	int hands;
+	double amount;
+	string name,session;
+	clear_screen();
+	display_greeting();
+	cout<<"*****************************/WELCOME TO SUSU/******************************\n"<<"Is this a new session y/n? ";
+	cin>>session;
+	clear_screen();
+	if((session.compare("y")==0)||(session.compare("Y")==0)){
+		cout<<"Please enter the amount of hands for this session and press Enter\n"<<"number of hands: ";
+		cin>>hands;
+		participant* ptr;
+		ptr = new participant[hands];
+		cout<<"Enter the amount per hand and press Enter\n"<<"U.S. dollars: $ ";
+		cin>>amount;
+		double total = amount*(double(hands));
+		cout<<"total amount = $ "<<to_string(total)<<"\n";
+		cout<<"Please enter participant name in order of hand and press Enter\n";
+		for(int i = 0;i<hands;i++){
+			cout<<"Hand "<<i+1<<": ";
+			cin>>name;
+			ptr[i].setName(name);
+			ptr[i].setNum(i+1);
+		}
+		clear_screen();
+		printParticipants(ptr,hands);
+		cout<<"Is this order correct y/n? ";
+		cin>>session;
+		while((session.compare("n")==0)||(session.compare("N")==0)){
+			hands_Order(ptr,hands);
+			printParticipants(ptr,hands);
+			cout<<"Is this order correct y/n? ";
+			cin>>session;
+		}
+		cout<<"Would you like to do anything else? y/n: ";
+		cin>>session;
+		while((session.compare("y")==0)||(session.compare("Y")==0)){
 
-				int hands;
-				double amount;
-				string name,session;
-					
-				clear_screen();
-	      display_greeting();
-			 	cout<<"*****************************/WELCOME TO SUSU/******************************\n"<<"Is this a new session y/n? ";
-		 		cin>>session;
-				clear_screen();
-				if((session.compare("y")==0)||(session.compare("Y")==0)){		
-					cout<<"Please enter the amount of hands for this session and press Enter\n"<<"number of hands: ";
-			 	 	cin>>hands;
-					participant* ptr;
-					ptr = new participant[hands];
-				
-					cout<<"Enter the amount per hand and press Enter\n"<<"U.S. dollars: $ ";
-					cin>>amount;
-					double total = amount*(double(hands));
-					cout<<"total amount = $ "<<total<<"\n";
-					cout<<"Please enter participant name in order of hand and press Enter\n";
-					for(int i = 0;i<hands;i++){
-						cout<<"Hand "<<i+1<<": ";
-						cin>>name;
-						ptr[i].setName(name);
-						ptr[i].setNum(i+1);
-					
-					}
-					clear_screen();
-					printParticipants(ptr,hands);
-					cout<<"Is this order correct y/n? ";
-					cin>>session;
-					while((session.compare("n")==0)||(session.compare("N")==0)){
+			cout<<"Choose from the available options below\n";
+			cout<<"a: add participant\n";
+			cout<<"d: delete participant\n";
+			cout<<"c: change order\n";
+			char a;
+			cin>>a;
 
-						hands_Order(ptr,hands);
-						printParticipants(ptr,hands);
-						cout<<"Is this order correct y/n? ";
-						cin>>session;
-					}
-				}
-				else{
-					//upload previous session;
-				}
-		return 0;
+			switch(a){			
+			
+				case 'a':ptr=add_participant(ptr,hands);
+					break;
+				case 'd':ptr=delete_participant(ptr,hands);
+					break;
+				case 'c':hands_Order(ptr,hands);
+				       break;
+
+			}
+			printParticipants(ptr,hands);
+			cout<<"Would you like to do anything else? y/n: ";
+			cin>>session;
+			
+		}
+	}
+	else{
+		//upload previous session;
+	}
+	return 0;
 }
 
 void clear_screen(){
 
-		int status;
-		char* argv[1];
-		argv[0] = NULL;
-		int child = fork();
-		if(child==0)
-			execvp("clear",&argv[0]);
-		else{
-			waitpid(child,&status,0);
-		}
+	int status;
+	char* argv[1];
+	argv[0] = NULL;
+	int child = fork();
+	if(child==0)
+		execvp("clear",&argv[0]);
+	else{
+		waitpid(child,&status,0);
+	}
 }
 
 void display_greeting(){
@@ -122,12 +144,50 @@ void printParticipants(participant* i_ptr,int n){
 	}
 }
 
-void add_participant(participant* i_ptr,int& n){
-	
+participant* add_participant(participant* i_ptr,int& n){
+	string name;
+	cout<<"Enter name: ";
+	cin>>name;
+	participant* p1,*p2,*p3;
+	p1=i_ptr;
+	i_ptr=new participant[n+1];//create larger array for new participant
+	for(int i=0;i<n;i++){ //migrate participants with new participant
+		p2=&i_ptr[i];
+		p3=&p1[i];
+		*p2=*p3;
+	}
+	n++;
+	i_ptr[n-1].setName(name);
+	i_ptr[n-1].setNum(n);
+	delete[] p1;
+	return i_ptr;
 }
 
-void delete_participant(participant* i_ptr,int& n){
+participant* delete_participant(participant* i_ptr,int& n){
+	int d,j=0;
+	participant* p1,*p2,*p3;
+	cout<<"Enter the number of the participant to be deleted: ";
+	cin>>d;
+	if((d<=n)&&(d>0)){
+		p1=i_ptr;
+		i_ptr=new participant[n-1];
+		for(int i=0;i<n;i++){
+			p3=&p1[i];
+			p2=&i_ptr[j];
+			if(p1[i].getNum()!=d){
+				*p2=*p3;
+				j++;
+				(*p2).setNum(j);
+			}
+		}
+		n--;
+		delete[] p1;
 
+	}
+	else{
+		cout<<"Please enter a valid number.\n";
+	}
+	return i_ptr;
 }
 
 void hands_Order(participant* ptr,int n){
