@@ -14,6 +14,7 @@ void printParticipants(participant* i_ptr,int n);
 participant* add_participant(participant* i_ptr,int& n);
 participant* delete_participant(participant* i_ptr,int& n);
 void hands_Order(participant* i_ptr,int n);
+string displaymoney(double money);
 
 int main(){
 	int hands;
@@ -32,11 +33,13 @@ int main(){
 		cout<<"Enter the amount per hand and press Enter\n"<<"U.S. dollars: $ ";
 		cin>>amount;
 		double total = amount*(double(hands));
-		cout<<"total amount = $ "<<to_string(total)<<"\n";
+		string dollars=displaymoney(total);
+		cout<<"total amount = $ "<<dollars<<"\n";
 		cout<<"Please enter participant name in order of hand and press Enter\n";
 		for(int i = 0;i<hands;i++){
 			cout<<"Hand "<<i+1<<": ";
-			cin>>name;
+			cin>>ws;	//clear input buffer
+			getline(cin,name);
 			ptr[i].setName(name);
 			ptr[i].setNum(i+1);
 		}
@@ -50,7 +53,7 @@ int main(){
 			cout<<"Is this order correct y/n? ";
 			cin>>session;
 		}
-		cout<<"Would you like to do anything else? y/n: ";
+		cout<<"Would you like to Add, Delete or Reorder a Participant? y/n: ";
 		cin>>session;
 		while((session.compare("y")==0)||(session.compare("Y")==0)){
 
@@ -72,7 +75,7 @@ int main(){
 
 			}
 			printParticipants(ptr,hands);
-			cout<<"Would you like to do anything else? y/n: ";
+			cout<<"Would you like to Add, Delete or Reorder a Participant? y/n: ";
 			cin>>session;
 			
 		}
@@ -125,18 +128,18 @@ void display_greeting(){
 }
 
 void printParticipants(participant* i_ptr,int n){
-	cout<<"----Name-------Hand--------Collected----\n";
+	cout<<"----Name-----------Hand-----------Collected----\n";
 	int spaces;
 	for(int i = 0;i<n;i++){
-		cout<<"   "<<i_ptr[i].getName();
+		cout<<i_ptr[i].getName();
 		string temp=i_ptr[i].getName();
-		if(temp.size()<13)
-			spaces=13-temp.size();
+		if(temp.size()<19)
+			spaces=19-temp.size();
 		while(spaces>0){
 			cout<<" ";
 			spaces--;
 		}
-		cout<<i_ptr[i].getNum()<<"            ";
+		cout<<i_ptr[i].getNum()<<"               ";
 		if(i_ptr[i].handStatus()==1)
 			cout<<"Yes\n";
 		else
@@ -147,7 +150,8 @@ void printParticipants(participant* i_ptr,int n){
 participant* add_participant(participant* i_ptr,int& n){
 	string name;
 	cout<<"Enter name: ";
-	cin>>name;
+	cin>>ws;
+	getline(cin,name);
 	participant* p1,*p2,*p3;
 	p1=i_ptr;
 	i_ptr=new participant[n+1];//create larger array for new participant
@@ -226,3 +230,40 @@ void hands_Order(participant* ptr,int n){
 	delete p1;
 		
 }
+string displaymoney(double money){
+
+	string dollars=to_string(money);
+	string accum;
+	char test;
+	int j=0;
+
+	for(int i=0;i<dollars.size()-4;i++){
+		accum+=dollars[i];
+		test=dollars[i+1];
+
+		if(((dollars.size()%11)%3==0)&&!(test=='.')&&(i<dollars.size()-7)){
+			if(i==0||j==3){
+				accum+=",";
+				j=0;
+			}
+			j++;
+		}
+		else if(((dollars.size()%12)%3==0)&&!(test=='.')&&(i<dollars.size()-7)){
+			if(i==1||j==3){
+				accum+=",";
+				j=0;
+			}
+			j++;
+		}
+		else if(((dollars.size()%13)%3==0)&&!(test=='.')&&(i<dollars.size()-7)){
+			if(i==2||j==3){
+				accum+=",";
+				j=0;
+			}
+			j++;
+		}
+
+	}
+	return accum;
+}
+
